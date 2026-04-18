@@ -404,6 +404,10 @@
     wkEditId = '';
     wkEditExerciseIdx = -1;
 
+    // Сбросить селектор редактирования
+    var selectorDiv = document.getElementById('wkEditSelector');
+    if (selectorDiv) selectorDiv.style.display = 'none';
+
     if (editDateStr && editId) {
       wkEditDateStr = editDateStr;
       wkEditId = editId;
@@ -554,6 +558,7 @@
     document.getElementById('wkCalendar').innerHTML = html;
     setupCalLongPress();
     document.getElementById('wkCalendarNext').disabled = !wkSelectedDate;
+    updateCalEditButton();
   }
 
   window.wkCalChangeMonth = function(delta) {
@@ -566,6 +571,80 @@
   window.selectWkCalDay = function(dateStr) {
     wkSelectedDate = dateStr;
     renderWkCalendar();
+    updateCalEditButton();
+  };
+
+  // Показать/скрыть кнопку «Редактировать» на шаге календаря
+  function updateCalEditButton() {
+    var editBtn = document.getElementById('wkCalendarEdit');
+    var selectorDiv = document.getElementById('wkEditSelector');
+    if (!editBtn) return;
+
+    if (!wkSelectedDate) {
+      editBtn.style.display = 'none';
+      if (selectorDiv) selectorDiv.style.display = 'none';
+      return;
+    }
+
+    var workouts = FP.getDateWorkouts(wkSelectedDate);
+    if (workouts.length > 0) {
+      editBtn.style.display = 'inline-flex';
+    } else {
+      editBtn.style.display = 'none';
+      if (selectorDiv) selectorDiv.style.display = 'none';
+    }
+  }
+
+  // Нажатие «Редактировать» — если одна тренировка, сразу редактировать; если несколько — показать селектор
+  window.wkEditSelectedWorkout = function() {
+    if (!wkSelectedDate) return;
+    var workouts = FP.getDateWorkouts(wkSelectedDate);
+
+    if (workouts.length === 0) return;
+
+    if (workouts.length === 1) {
+      // Одна тренировка — сразу открываем редактирование
+      var wk = workouts[0];
+      var wkId = wk.id || (wkSelectedDate + '_' + wk.time);
+      openWorkoutModal(wkSelectedDate, wkId);
+      return;
+    }
+
+    // Несколько тренировок — показать селектор
+    var selectorDiv = document.getElementById('wkEditSelector');
+    var selectorList = document.getElementById('wkEditSelectorList');
+    if (!selectorDiv || !selectorList) return;
+
+    var html = '';
+    workouts.forEach(function(wk, idx) {
+      var wkId = wk.id || (wkSelectedDate + '_' + wk.time);
+      var locLabel = LOCATION_LABELS[wk.location] || '';
+      var typeLabel = (TYPE_LABELS[wk.location] && TYPE_LABELS[wk.location][wk.type]) || '';
+      var statusText = wk.done ? ' (выполнена)' : '';
+      var exCount = (wk.exercises && wk.exercises.length) || 0;
+      var calText = wk.totalCal ? wk.totalCal + ' ккал' : '';
+
+      html += '<div class="wk-edit-selector-item" onclick="wkSelectEditWorkout(\'' + FP.escHtml(wkId) + '\')">' +
+        '<div class="wk-edit-selector-item-info">' +
+          '<div class="wk-edit-selector-item-title">' + FP.escHtml(locLabel + ' · ' + typeLabel + statusText) + '</div>' +
+          '<div class="wk-edit-selector-item-meta">' + exCount + ' упр.' + (calText ? ' · ' + calText : '') + '</div>' +
+        '</div>' +
+        '<div class="wk-edit-selector-item-icon">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+        '</div>' +
+      '</div>';
+    });
+    selectorList.innerHTML = html;
+    selectorDiv.style.display = 'block';
+  };
+
+  // Выбор конкретной тренировки для редактирования из селектора
+  window.wkSelectEditWorkout = function(wkId) {
+    // Скрываем селектор
+    var selectorDiv = document.getElementById('wkEditSelector');
+    if (selectorDiv) selectorDiv.style.display = 'none';
+    // Открываем модалку редактирования
+    openWorkoutModal(wkSelectedDate, wkId);
   };
 
   window.wkCalendarConfirm = function() {
@@ -580,6 +659,69 @@
   window.closeWorkoutModal = function() {
     document.getElementById('workoutModal').classList.remove('open');
     document.getElementById('workoutModal').classList.remove('fullscreen-modal');
+    // Скрываем предупреждение при закрытии
+    var warnEl = document.getElementById('wkCloseWarning');
+    if (warnEl) warnEl.style.display = 'none';
+  };
+
+  // Определяем текущий шаг модалки
+  function getCurrentWkStep() {
+    for (var i = 0; i <= 5; i++) {
+      var step = document.getElementById('wkStep' + i);
+      if (step && step.style.display !== 'none') return i;
+    }
+    return -1;
+  }
+
+  // Клик на крестик модалки — контекстно-зависимое поведение
+  window.workoutModalCloseClick = function() {
+    var currentStep = getCurrentWkStep();
+
+    // Если на шаге деталей упражнения — возвращаемся к списку
+    if (currentStep === 4) {
+      wkBackToExercises();
+      return;
+    }
+
+    // Если на шаге плана тренировки (5) и есть упражнения — показать предупреждение
+    if (currentStep === 5 && wkExercises.length > 0) {
+      showWkCloseWarning();
+      return;
+    }
+
+    // Если на шаге списка упражнений (3) и уже добавлены упражнения — показать предупреждение
+    if (currentStep === 3 && wkExercises.length > 0) {
+      showWkCloseWarning();
+      return;
+    }
+
+    // Иначе просто закрыть
+    closeWorkoutModal();
+  };
+
+  // Показать предупреждение о несохранённых данных
+  function showWkCloseWarning() {
+    var warnEl = document.getElementById('wkCloseWarning');
+    if (warnEl) warnEl.style.display = 'flex';
+  }
+
+  // Скрыть предупреждение
+  window.hideWkCloseWarning = function() {
+    var warnEl = document.getElementById('wkCloseWarning');
+    if (warnEl) warnEl.style.display = 'none';
+  };
+
+  // Сохранить план и выйти
+  window.saveAndCloseWorkout = function() {
+    if (wkExercises.length > 0) {
+      finishWorkout();
+    }
+    closeWorkoutModal();
+  };
+
+  // Выйти без сохранения
+  window.discardAndCloseWorkout = function() {
+    closeWorkoutModal();
   };
 
   // Закрытие по клику на оверлей — только для НЕ-полноэкранной модалки

@@ -53,7 +53,10 @@
     });
 
     document.getElementById('inputWeight').addEventListener('input', function() {
-      toggleNextBtn(3, parseFloat(this.value) > 0);
+      formData.weight = parseFloat(this.value) || 0;
+      toggleNextBtn(3, formData.weight > 0);
+      // Перепроверить целевой вес при изменении текущего
+      enforceTargetWeight();
     });
 
     document.getElementById('inputHeight').addEventListener('input', function() {
@@ -61,9 +64,36 @@
     });
 
     document.getElementById('inputTargetWeight').addEventListener('input', function() {
+      enforceTargetWeight();
       checkFinishBtn();
     });
   }
+
+  // Проверка и ограничение целевого веса в зависимости от цели
+  function enforceTargetWeight() {
+    var targetInput = document.getElementById('inputTargetWeight');
+    var targetVal = parseFloat(targetInput.value) || 0;
+    var currentWeight = formData.weight || parseFloat(document.getElementById('inputWeight').value) || 0;
+
+    if (formData.goal === 'gain' && targetVal < currentWeight && currentWeight > 0) {
+      targetInput.value = currentWeight;
+    } else if (formData.goal === 'lose' && targetVal > currentWeight && currentWeight > 0) {
+      targetInput.value = currentWeight;
+    }
+  }
+
+  // Перехват adjustNum для целевого веса с учётом ограничений
+  var origAdjustNum = window.adjustNum;
+  window.adjustNum = function(inputId, delta) {
+    origAdjustNum(inputId, delta);
+    if (inputId === 'inputTargetWeight') {
+      enforceTargetWeight();
+      checkFinishBtn();
+    } else if (inputId === 'inputWeight') {
+      formData.weight = parseFloat(document.getElementById('inputWeight').value) || 0;
+      enforceTargetWeight();
+    }
+  };
 
   // ===== Шаги визарда =====
   function renderStepDots() {
@@ -169,21 +199,53 @@
       formData.goal = val;
       var showTarget = (val === 'lose' || val === 'gain');
       document.getElementById('targetWeightGroup').style.display = showTarget ? 'block' : 'none';
-      if (!showTarget) { formData.targetWeight = formData.weight; }
-      else if (!formData.targetWeight && formData.weight) {
-        var diff = val === 'lose' ? -5 : 5;
-        formData.targetWeight = Math.round((formData.weight + diff) * 10) / 10;
+      if (!showTarget) { 
+        formData.targetWeight = formData.weight; 
+      } else if (formData.weight) {
+        var currentW = formData.weight;
+        if (val === 'lose') {
+          // Для похудения — целевой вес ниже текущего, по умолчанию -5 кг
+          formData.targetWeight = Math.round((currentW - 5) * 10) / 10;
+          if (formData.targetWeight < 30) formData.targetWeight = Math.round((currentW - 1) * 10) / 10;
+        } else {
+          // Для набора — целевой вес выше текущего, по умолчанию +5 кг
+          formData.targetWeight = Math.round((currentW + 5) * 10) / 10;
+        }
         document.getElementById('inputTargetWeight').value = formData.targetWeight;
+        // Показать подсказку
+        updateTargetHint();
       }
+      enforceTargetWeight();
       checkFinishBtn();
     }
   };
 
+  // Обновить подсказку для целевого веса
+  function updateTargetHint() {
+    var hintEl = document.getElementById('targetWeightHint');
+    if (!hintEl) return;
+    if (formData.goal === 'lose') {
+      hintEl.textContent = 'Целевой вес должен быть ниже текущего (' + formData.weight + ' кг)';
+      hintEl.style.display = 'block';
+    } else if (formData.goal === 'gain') {
+      hintEl.textContent = 'Целевой вес должен быть выше текущего (' + formData.weight + ' кг)';
+      hintEl.style.display = 'block';
+    } else {
+      hintEl.style.display = 'none';
+    }
+  }
+
   function checkFinishBtn() {
-    var targetW = document.getElementById('inputTargetWeight').value;
+    var targetW = parseFloat(document.getElementById('inputTargetWeight').value) || 0;
     var goalOk = !!formData.goal;
     var targetOk = true;
-    if (formData.goal === 'lose' || formData.goal === 'gain') { targetOk = parseFloat(targetW) > 0; }
+    if (formData.goal === 'lose') {
+      targetOk = targetW > 0 && targetW < formData.weight;
+    } else if (formData.goal === 'gain') {
+      targetOk = targetW > 0 && targetW > formData.weight;
+    } else if (formData.goal === 'maintain') {
+      targetOk = true;
+    }
     toggleNextBtn(5, goalOk && targetOk);
   }
 

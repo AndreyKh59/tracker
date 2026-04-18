@@ -165,6 +165,7 @@
             </button>
             <span class="num-unit">кг</span>
           </div>
+          <p id="targetWeightHint" class="target-weight-hint" style="display:none;"></p>
         </div>
       </div>
       <div class="step-footer">
@@ -223,43 +224,89 @@
       <main class="app-main" id="appMain">
         <!-- Дашборд -->
         <section id="viewDashboard" class="view active">
-          <h2 class="view-title" id="greeting">Привет!</h2>
-          <p class="view-date text-muted" id="todayDate"></p>
+          <!-- Приветствие + серия -->
+          <div class="dash-header">
+            <div>
+              <h2 class="view-title" id="greeting">Привет!</h2>
+              <p class="view-date text-muted" id="todayDate"></p>
+            </div>
+            <div class="dash-streak" id="dashStreak" style="display:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              <span id="dashStreakVal">0</span>
+            </div>
+          </div>
 
-          <div class="stat-grid">
-            <div class="stat-card">
-              <div class="stat-icon-wrap">
-                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
-              </div>
-              <div class="stat-info">
-                <div class="stat-val" id="dashCal">0</div>
-                <div class="stat-label">ккал съедено</div>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon-wrap">
-                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-              </div>
-              <div class="stat-info">
-                <div class="stat-val" id="dashBurned">0</div>
-                <div class="stat-label">ккал сожжено</div>
+          <!-- 1. Кольцо калорий за день -->
+          <div class="dash-calorie-card">
+            <div class="dash-calorie-ring-wrap">
+              <svg class="calorie-ring" viewBox="0 0 120 120">
+                <circle class="ring-bg" cx="60" cy="60" r="52" />
+                <circle class="ring-fill" id="dashRingFill" cx="60" cy="60" r="52" />
+              </svg>
+              <div class="ring-center">
+                <span class="ring-val" id="dashRingVal">0</span>
+                <span class="ring-label">осталось</span>
               </div>
             </div>
-            <div class="stat-card">
-              <div class="stat-icon-wrap">
-                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><rect x="5" y="8" width="14" height="8" rx="2"/><line x1="9" y1="3" x2="15" y2="3"/></svg>
+            <div class="dash-calorie-info">
+              <div class="dash-calorie-row">
+                <span class="dash-calorie-label">Съедено</span>
+                <span class="dash-calorie-val" id="dashCalEaten">0 ккал</span>
               </div>
-              <div class="stat-info">
-                <div class="stat-val" id="dashWeight">—</div>
-                <div class="stat-label">кг текущий вес</div>
+              <div class="dash-calorie-row">
+                <span class="dash-calorie-label">Сожжено</span>
+                <span class="dash-calorie-val dash-burned" id="dashCalBurned">0 ккал</span>
+              </div>
+              <div class="dash-calorie-row">
+                <span class="dash-calorie-label">Цель</span>
+                <span class="dash-calorie-val dash-target" id="dashCalTarget">0 ккал</span>
+              </div>
+              <!-- Макросы -->
+              <div class="dash-macros-mini">
+                <div class="dash-macro-chip"><span class="dash-macro-dot" style="background:#3b82f6"></span> Б <b id="dashMacroP">0</b> г</div>
+                <div class="dash-macro-chip"><span class="dash-macro-dot" style="background:#f59e0b"></span> Ж <b id="dashMacroF">0</b> г</div>
+                <div class="dash-macro-chip"><span class="dash-macro-dot" style="background:#10b981"></span> У <b id="dashMacroC">0</b> г</div>
               </div>
             </div>
           </div>
 
-          <div class="placeholder-card" id="dashEmptyHint" style="display:none;">
-            <svg class="placeholder-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-            <p>Добавьте приёмы пищи во вкладке «Питание», чтобы увидеть статистику за сегодня.</p>
+          <!-- 2. Тренировка на сегодня -->
+          <div class="dash-section">
+            <div class="dash-section-head">
+              <h3 class="dash-section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Тренировка на сегодня
+              </h3>
+            </div>
+            <div id="dashWorkoutContent"></div>
           </div>
+
+          <!-- 3. Питание по приёмам -->
+          <div class="dash-section">
+            <div class="dash-section-head">
+              <h3 class="dash-section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                Питание за сегодня
+              </h3>
+            </div>
+            <div id="dashMealsContent"></div>
+          </div>
+
+          <!-- 4. Быстрые действия -->
+          <div class="dash-actions">
+            <button class="dash-action-btn dash-action-food" onclick="openFoodModal('breakfast')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Добавить питание
+            </button>
+            <button class="dash-action-btn dash-action-workout" onclick="openWorkoutModal()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Добавить тренировку
+            </button>
+          </div>
+
+
+
+
         </section>
 
         <!-- Тренировки -->
@@ -507,9 +554,24 @@
       <div class="modal-sheet">
         <div class="modal-header">
           <h3 class="modal-title">Запланировать тренировку</h3>
-          <button class="modal-close" onclick="closeWorkoutModal()">
+          <button class="modal-close" onclick="workoutModalCloseClick()">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
+        </div>
+
+        <!-- Предупреждение при закрытии с несохранёнными данными -->
+        <div class="wk-close-warning" id="wkCloseWarning" style="display:none;">
+          <div class="wk-close-warning-card">
+            <div class="wk-close-warning-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <p class="wk-close-warning-text">У вас есть несохранённые изменения. Сохранить план перед выходом?</p>
+            <div class="wk-close-warning-btns">
+              <button class="btn-next wk-close-warning-save" onclick="saveAndCloseWorkout()">Сохранить план и выйти</button>
+              <button class="btn-secondary wk-close-warning-discard" onclick="discardAndCloseWorkout()">Выйти без сохранения</button>
+              <button class="wk-close-warning-cancel" onclick="hideWkCloseWarning()">Отмена</button>
+            </div>
+          </div>
         </div>
 
         <!-- Шаг 0: Календарь (выбор даты) -->
@@ -524,7 +586,18 @@
             </button>
           </div>
           <div class="wk-calendar" id="wkCalendar"></div>
-          <button class="btn-next wk-calendar-next" id="wkCalendarNext" onclick="wkCalendarConfirm()" disabled>Запланировать</button>
+          <div class="wk-cal-actions" id="wkCalActions">
+            <button class="btn-next wk-calendar-next" id="wkCalendarNext" onclick="wkCalendarConfirm()" disabled>Запланировать</button>
+            <button class="btn-secondary wk-calendar-edit" id="wkCalendarEdit" onclick="wkEditSelectedWorkout()" style="display:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Редактировать
+            </button>
+          </div>
+          <!-- Селектор тренировок для редактирования (если их несколько) -->
+          <div class="wk-edit-selector" id="wkEditSelector" style="display:none;">
+            <p class="wk-edit-selector-label">Выберите тренировку для редактирования:</p>
+            <div class="wk-edit-selector-list" id="wkEditSelectorList"></div>
+          </div>
         </div>
 
         <!-- Шаг 1: Место -->
@@ -569,7 +642,6 @@
 
         <!-- Шаг 4: Детали упражнения (открывается отдельно) -->
         <div class="wk-step" id="wkStep4" style="display:none;">
-          <button class="wk-back-link" onclick="wkBackToExercises()" style="margin-bottom:12px">Назад к списку</button>
           <!-- Картинка упражнения (placeholder) -->
           <div class="wk-detail-img" id="wkDetailImg"></div>
           <div class="wk-detail-name" id="wkDetailName"></div>

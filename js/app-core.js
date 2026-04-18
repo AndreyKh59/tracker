@@ -48,6 +48,11 @@ window.FitPulse = {};
     inp.dispatchEvent(new Event('input'));
   };
 
+  // Глобальный обработчик для кнопок +/-
+  window.adjustNum = function(inputId, delta) {
+    FP.adjustNum(inputId, delta);
+  };
+
   // ===== Ключи хранилища =====
   FP.todayDateStr = function() {
     var d = new Date();
