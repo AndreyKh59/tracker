@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FitPulse — Фитнес-трекер</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ========================================== -->
+  <!--  ЭКРАН ПРОФИЛЯ (многошаговый визард)       -->
+  <!-- ========================================== -->
+  <div id="profileWizard" class="wizard">
+
+    <!-- Прогресс-бар -->
+    <div class="wizard-progress">
+      <div class="wizard-progress-bar" id="progressBar"></div>
+    </div>
+    <div class="wizard-steps" id="stepDots"></div>
+
+    <!-- Шаг 1: Имя -->
+    <div class="step active" data-step="1">
+      <div class="step-content">
+        <div class="step-number">01</div>
+        <h1 class="step-title">Как вас зовут?</h1>
+        <p class="step-subtitle">Мы будем обращаться к вам по имени</p>
+        <div class="step-field">
+          <input type="text" id="inputName" class="step-input" placeholder="Введите ваше имя" autocomplete="off" maxlength="30">
+        </div>
+      </div>
+      <div class="step-footer">
+        <button class="btn-next" onclick="nextStep()" disabled>Далее</button>
+      </div>
+    </div>
+
+    <!-- Шаг 2: Пол -->
+    <div class="step" data-step="2">
+      <div class="step-content">
+        <div class="step-number">02</div>
+        <h1 class="step-title">Ваш пол</h1>
+        <p class="step-subtitle">Это нужно для точного расчёта калорий</p>
+        <div class="gender-scene">
+          <div class="gender-images">
+            <button class="gender-layer" data-value="female" onclick="selectChoice(this, 'gender')">
+              <img src="img/women.png" alt="Женский" class="gender-img">
+            </button>
+            <button class="gender-layer gender-layer-front" data-value="male" onclick="selectChoice(this, 'gender')">
+              <img src="img/man.png" alt="Мужской" class="gender-img">
+            </button>
+          </div>
+          <div class="gender-buttons">
+            <button class="gender-btn" data-value="female" onclick="selectChoice(this, 'gender')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><line x1="12" y1="14" x2="12" y2="22"/><line x1="8" y1="18" x2="16" y2="18"/></svg>
+            </button>
+            <button class="gender-btn" data-value="male" onclick="selectChoice(this, 'gender')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="6"/><line x1="14.5" y1="9.5" x2="21" y2="3"/><line x1="15" y1="3" x2="21" y2="3"/><line x1="21" y1="3" x2="21" y2="9"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="step-footer">
+        <button class="btn-back" onclick="prevStep()">Назад</button>
+        <button class="btn-next" onclick="nextStep()" disabled>Далее</button>
+      </div>
+    </div>
+
+    <!-- Шаг 3: Вес -->
+    <div class="step" data-step="3">
+      <div class="step-content">
+        <div class="step-number">03</div>
+        <h1 class="step-title">Ваш вес</h1>
+        <p class="step-subtitle">Укажите текущий вес в килограммах</p>
+        <div class="step-field">
+          <div class="number-input">
+            <button class="num-btn" onclick="adjustNum('inputWeight', -0.5)">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <input type="number" id="inputWeight" class="step-input step-input-num" value="70" min="30" max="300" step="0.1">
+            <button class="num-btn" onclick="adjustNum('inputWeight', 0.5)">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="9" y1="3" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <span class="num-unit">кг</span>
+          </div>
+        </div>
+      </div>
+      <div class="step-footer">
+        <button class="btn-back" onclick="prevStep()">Назад</button>
+        <button class="btn-next" onclick="nextStep()" disabled>Далее</button>
+      </div>
+    </div>
+
+    <!-- Шаг 4: Рост -->
+    <div class="step" data-step="4">
+      <div class="step-content">
+        <div class="step-number">04</div>
+        <h1 class="step-title">Ваш рост</h1>
+        <p class="step-subtitle">Укажите рост в сантиметрах</p>
+        <div class="step-field">
+          <div class="number-input">
+            <button class="num-btn" onclick="adjustNum('inputHeight', -1)">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <input type="number" id="inputHeight" class="step-input step-input-num" value="170" min="100" max="250" step="1">
+            <button class="num-btn" onclick="adjustNum('inputHeight', 1)">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="9" y1="3" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <span class="num-unit">см</span>
+          </div>
+        </div>
+      </div>
+      <div class="step-footer">
+        <button class="btn-back" onclick="prevStep()">Назад</button>
+        <button class="btn-next" onclick="nextStep()" disabled>Далее</button>
+      </div>
+    </div>
+
+    <!-- Шаг 5: Цель -->
+    <div class="step" data-step="5">
+      <div class="step-content">
+        <div class="step-number">05</div>
+        <h1 class="step-title">Ваша цель</h1>
+        <p class="step-subtitle">К чему вы стремитесь?</p>
+        <div class="choice-cards choice-cards-col">
+          <button class="choice-card choice-card-wide" data-value="lose" onclick="selectChoice(this, 'goal')">
+            <div class="choice-marker">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+            <div class="choice-text">
+              <span class="choice-label">Похудеть</span>
+              <span class="choice-desc">Снизить вес и подтянуть фигуру</span>
+            </div>
+          </button>
+          <button class="choice-card choice-card-wide" data-value="maintain" onclick="selectChoice(this, 'goal')">
+            <div class="choice-marker">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M8 12h8"/></svg>
+            </div>
+            <div class="choice-text">
+              <span class="choice-label">Поддерживать форму</span>
+              <span class="choice-desc">Держать текущий вес в норме</span>
+            </div>
+          </button>
+          <button class="choice-card choice-card-wide" data-value="gain" onclick="selectChoice(this, 'goal')">
+            <div class="choice-marker">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+            </div>
+            <div class="choice-text">
+              <span class="choice-label">Набрать массу</span>
+              <span class="choice-desc">Увеличить вес и мышечную массу</span>
+            </div>
+          </button>
+        </div>
+        <div id="targetWeightGroup" class="step-field" style="display:none; margin-top: 20px;">
+          <p class="step-subtitle">Целевой вес (кг)</p>
+          <div class="number-input">
+            <button class="num-btn" onclick="adjustNum('inputTargetWeight', -0.5)">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <input type="number" id="inputTargetWeight" class="step-input step-input-num" placeholder="65" min="30" max="300" step="0.1">
+            <button class="num-btn" onclick="adjustNum('inputTargetWeight', 0.5)">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="9" y1="3" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <span class="num-unit">кг</span>
+          </div>
+        </div>
+      </div>
+      <div class="step-footer">
+        <button class="btn-back" onclick="prevStep()">Назад</button>
+        <button class="btn-next btn-start" onclick="finishProfile()" disabled>Начать</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========================================== -->
+  <!--  ОСНОВНОЕ ПРИЛОЖЕНИЕ                       -->
+  <!-- ========================================== -->
+  <div id="mainApp" class="app" style="display:none;">
+
+    <!-- Sidebar (desktop) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">FP</div>
+        <span class="sidebar-brand">FitPulse</span>
+      </div>
+      <nav class="sidebar-nav" id="sidebarNav">
+        <button class="sidebar-btn active" data-view="dashboard" onclick="navigate('dashboard')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Дашборд
+        </button>
+        <button class="sidebar-btn" data-view="workouts" onclick="navigate('workouts')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Тренировки
+        </button>
+        <button class="sidebar-btn" data-view="nutrition" onclick="navigate('nutrition')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+          Питание
+        </button>
+        <button class="sidebar-btn" data-view="progress" onclick="navigate('progress')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Прогресс
+        </button>
+        <button class="sidebar-btn" data-view="profile" onclick="navigate('profile')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Профиль
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Контент -->
+    <div class="app-body">
+      <header class="app-header">
+        <div class="header-left">
+          <div class="header-logo">FP</div>
+          <span class="header-title">FitPulse</span>
+        </div>
+        <span class="header-user" id="headerUser"></span>
+      </header>
+
+      <main class="app-main" id="appMain">
+        <!-- Дашборд -->
+        <section id="viewDashboard" class="view active">
+          <h2 class="view-title" id="greeting">Привет!</h2>
+          <p class="view-date text-muted" id="todayDate"></p>
+
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div class="stat-icon-wrap">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div class="stat-info">
+                <div class="stat-val" id="dashCal">0</div>
+                <div class="stat-label">ккал съедено</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon-wrap">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </div>
+              <div class="stat-info">
+                <div class="stat-val" id="dashBurned">0</div>
+                <div class="stat-label">ккал сожжено</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon-wrap">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><rect x="5" y="8" width="14" height="8" rx="2"/><line x1="9" y1="3" x2="15" y2="3"/></svg>
+              </div>
+              <div class="stat-info">
+                <div class="stat-val" id="dashWeight">—</div>
+                <div class="stat-label">кг текущий вес</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="placeholder-card" id="dashEmptyHint" style="display:none;">
+            <svg class="placeholder-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <p>Добавьте приёмы пищи во вкладке «Питание», чтобы увидеть статистику за сегодня.</p>
+          </div>
+        </section>
+
+        <!-- Тренировки -->
+        <section id="viewWorkouts" class="view">
+          <h2 class="view-title">Тренировки</h2>
+          <p class="view-date" id="workoutDate">Планировщик тренировок</p>
+
+          <!-- Сводка на неделю -->
+          <div class="workout-summary">
+            <div class="workout-stat">
+              <div class="workout-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div class="workout-stat-info">
+                <span class="workout-stat-val" id="workoutPlanned">0</span>
+                <span class="workout-stat-label">запланировано</span>
+              </div>
+            </div>
+            <div class="workout-stat">
+              <div class="workout-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div class="workout-stat-info">
+                <span class="workout-stat-val" id="workoutDone">0</span>
+                <span class="workout-stat-label">выполнено</span>
+              </div>
+            </div>
+            <div class="workout-stat">
+              <div class="workout-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </div>
+              <div class="workout-stat-info">
+                <span class="workout-stat-val" id="workoutBurned">0</span>
+                <span class="workout-stat-label">ккал (выполнено)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Кнопка запланировать -->
+          <button class="workout-add-main" onclick="openWorkoutModal()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Запланировать тренировку
+          </button>
+
+          <!-- Список запланированных тренировок -->
+          <div class="workouts-list" id="workoutsList"></div>
+        </section>
+
+        <!-- Питание -->
+        <section id="viewNutrition" class="view">
+          <h2 class="view-title">Питание</h2>
+          <p class="view-date" id="nutritionDate"></p>
+
+          <!-- Кольцо калорий + макросы -->
+          <div class="calorie-header">
+            <div class="calorie-ring-wrap">
+              <svg class="calorie-ring" viewBox="0 0 120 120">
+                <circle class="ring-bg" cx="60" cy="60" r="52" />
+                <circle class="ring-fill" id="calorieRing" cx="60" cy="60" r="52" />
+              </svg>
+              <div class="ring-center">
+                <span class="ring-val" id="ringCalLeft">0</span>
+                <span class="ring-label">осталось</span>
+              </div>
+            </div>
+            <div class="macro-bars">
+              <div class="macro-item">
+                <div class="macro-head">
+                  <span class="macro-name">Белки</span>
+                  <span class="macro-val" id="macroProtein">0 / 0 г</span>
+                </div>
+                <div class="macro-track"><div class="macro-fill protein" id="barProtein"></div></div>
+              </div>
+              <div class="macro-item">
+                <div class="macro-head">
+                  <span class="macro-name">Жиры</span>
+                  <span class="macro-val" id="macroFat">0 / 0 г</span>
+                </div>
+                <div class="macro-track"><div class="macro-fill fat" id="barFat"></div></div>
+              </div>
+              <div class="macro-item">
+                <div class="macro-head">
+                  <span class="macro-name">Углеводы</span>
+                  <span class="macro-val" id="macroCarbs">0 / 0 г</span>
+                </div>
+                <div class="macro-track"><div class="macro-fill carbs" id="barCarbs"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Приёмы пищи -->
+          <div class="meals-list">
+            <div class="meal-card" data-meal="breakfast">
+              <div class="meal-head" onclick="toggleMeal('breakfast')">
+                <div class="meal-icon-wrap breakfast">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                </div>
+                <div class="meal-info">
+                  <span class="meal-name">Завтрак</span>
+                  <span class="meal-kcal" id="mealKcal_breakfast">0 ккал</span>
+                </div>
+                <svg class="meal-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <div class="meal-body" id="mealBody_breakfast">
+                <div class="meal-items" id="mealItems_breakfast"></div>
+                <button class="meal-add-btn" onclick="openFoodModal('breakfast')">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Добавить
+                </button>
+              </div>
+            </div>
+
+            <div class="meal-card" data-meal="lunch">
+              <div class="meal-head" onclick="toggleMeal('lunch')">
+                <div class="meal-icon-wrap lunch">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
+                </div>
+                <div class="meal-info">
+                  <span class="meal-name">Обед</span>
+                  <span class="meal-kcal" id="mealKcal_lunch">0 ккал</span>
+                </div>
+                <svg class="meal-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <div class="meal-body" id="mealBody_lunch">
+                <div class="meal-items" id="mealItems_lunch"></div>
+                <button class="meal-add-btn" onclick="openFoodModal('lunch')">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Добавить
+                </button>
+              </div>
+            </div>
+
+            <div class="meal-card" data-meal="dinner">
+              <div class="meal-head" onclick="toggleMeal('dinner')">
+                <div class="meal-icon-wrap dinner">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 11h.01"/><path d="M11 15h.01"/><path d="M16 16h.01"/><path d="M2 16l20 6-6-20L8 8z"/></svg>
+                </div>
+                <div class="meal-info">
+                  <span class="meal-name">Ужин</span>
+                  <span class="meal-kcal" id="mealKcal_dinner">0 ккал</span>
+                </div>
+                <svg class="meal-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <div class="meal-body" id="mealBody_dinner">
+                <div class="meal-items" id="mealItems_dinner"></div>
+                <button class="meal-add-btn" onclick="openFoodModal('dinner')">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Добавить
+                </button>
+              </div>
+            </div>
+
+            <div class="meal-card" data-meal="snacks">
+              <div class="meal-head" onclick="toggleMeal('snacks')">
+                <div class="meal-icon-wrap snacks">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                </div>
+                <div class="meal-info">
+                  <span class="meal-name">Перекусы</span>
+                  <span class="meal-kcal" id="mealKcal_snacks">0 ккал</span>
+                </div>
+                <svg class="meal-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <div class="meal-body" id="mealBody_snacks">
+                <div class="meal-items" id="mealItems_snacks"></div>
+                <button class="meal-add-btn" onclick="openFoodModal('snacks')">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Добавить
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Прогресс -->
+        <section id="viewProgress" class="view">
+          <h2 class="view-title">Прогресс</h2>
+          <div class="placeholder-card">
+            <svg class="placeholder-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <p>Раздел прогресса будет добавлен на следующем этапе.</p>
+          </div>
+        </section>
+
+        <!-- Профиль -->
+        <section id="viewProfile" class="view">
+          <h2 class="view-title">Профиль</h2>
+          <div id="profileSummary" class="profile-summary"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Bottom nav (mobile) -->
+    <nav class="bottomnav" id="bottomNav">
+      <button class="bottomnav-btn active" data-view="dashboard" onclick="navigate('dashboard')">
+        <svg class="bottomnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span class="bottomnav-label">Дашборд</span>
+      </button>
+      <button class="bottomnav-btn" data-view="workouts" onclick="navigate('workouts')">
+        <svg class="bottomnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <span class="bottomnav-label">Тренировки</span>
+      </button>
+      <button class="bottomnav-btn" data-view="nutrition" onclick="navigate('nutrition')">
+        <svg class="bottomnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        <span class="bottomnav-label">Питание</span>
+      </button>
+      <button class="bottomnav-btn" data-view="progress" onclick="navigate('progress')">
+        <svg class="bottomnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span class="bottomnav-label">Прогресс</span>
+      </button>
+      <button class="bottomnav-btn" data-view="profile" onclick="navigate('profile')">
+        <svg class="bottomnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="bottomnav-label">Профиль</span>
+      </button>
+    </nav>
+
+    <!-- Модалка добавления продукта -->
+    <div class="modal-overlay" id="foodModal">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">Добавить продукт</h3>
+          <button class="modal-close" onclick="closeFoodModal()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-search">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="foodSearch" class="search-input" placeholder="Поиск продукта..." autocomplete="off">
+        </div>
+        <div class="modal-categories" id="foodCategories"></div>
+        <div class="modal-results" id="foodResults"></div>
+
+        <!-- Выбор порции -->
+        <div class="portion-panel" id="portionPanel" style="display:none;">
+          <div class="portion-food" id="portionFoodName"></div>
+          <div class="portion-macros" id="portionMacros"></div>
+          <div class="portion-input-row">
+            <button class="num-btn" onclick="adjustPortion(-10)">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <input type="number" id="portionInput" class="step-input step-input-num" value="100" min="10" max="2000" step="10">
+            <button class="num-btn" onclick="adjustPortion(10)">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="9" y1="3" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <span class="num-unit">г</span>
+          </div>
+          <div class="portion-preview" id="portionPreview"></div>
+          <button class="btn-next portion-add-btn" onclick="confirmAddFood()">Добавить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модалка планирования тренировки -->
+    <div class="modal-overlay" id="workoutModal">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">Запланировать тренировку</h3>
+          <button class="modal-close" onclick="closeWorkoutModal()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <!-- Шаг 0: Календарь (выбор даты) -->
+        <div class="wk-step" id="wkStep0">
+          <div class="wk-calendar-header">
+            <button class="wk-cal-nav" id="wkCalPrev" onclick="wkCalChangeMonth(-1)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="wk-cal-month" id="wkCalMonth"></span>
+            <button class="wk-cal-nav" id="wkCalNext" onclick="wkCalChangeMonth(1)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+          <div class="wk-calendar" id="wkCalendar"></div>
+          <button class="btn-next wk-calendar-next" id="wkCalendarNext" onclick="wkCalendarConfirm()" disabled>Запланировать</button>
+        </div>
+
+        <!-- Шаг 1: Место -->
+        <div class="wk-step" id="wkStep1" style="display:none;">
+          <p class="wk-step-label">Где тренируемся?</p>
+          <div class="wk-cards">
+            <button class="wk-card" onclick="selectWkLocation('gym')">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M3 10h2.5"/><path d="M3 14h2.5"/><path d="M18.5 10H21"/><path d="M18.5 14H21"/><rect x="6" y="4" width="12" height="16" rx="2"/><line x1="10" y1="9" x2="10" y2="15"/><line x1="14" y1="9" x2="14" y2="15"/></svg>
+              <span>Зал</span>
+            </button>
+            <button class="wk-card" onclick="selectWkLocation('home')">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span>Дома</span>
+            </button>
+            <button class="wk-card" onclick="selectWkLocation('street')">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20h5v-2a3 3 0 0 0-5.356-1.857"/><path d="M7 20H2v-2a3 3 0 0 1 5.356-1.857"/><circle cx="12" cy="8" r="5"/><path d="M13 13l-1 7-2-4"/></svg>
+              <span>Улица</span>
+            </button>
+          </div>
+          <button class="wk-back-link" onclick="wkGoBack(0)">Назад</button>
+        </div>
+
+        <!-- Шаг 2: Тип -->
+        <div class="wk-step" id="wkStep2" style="display:none;">
+          <p class="wk-step-label" id="wkTypeLabel">Выберите тип</p>
+          <div class="wk-cards" id="wkTypeCards"></div>
+          <button class="wk-back-link" onclick="wkGoBack(1)">Назад</button>
+        </div>
+
+        <!-- Шаг 3: Упражнения -->
+        <div class="wk-step" id="wkStep3" style="display:none;">
+          <div class="wk-exercise-header">
+            <p class="wk-step-label">Добавьте упражнения</p>
+            <span class="wk-total-cal" id="wkTotalCal">0 ккал</span>
+          </div>
+          <!-- Добавленные упражнения -->
+          <div class="wk-added-list" id="wkAddedList"></div>
+          <!-- Список упражнений -->
+          <div class="wk-exercise-search">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="wkExerciseSearch" class="search-input" placeholder="Поиск упражнения..." autocomplete="off">
+          </div>
+          <div class="wk-exercise-results" id="wkExerciseResults"></div>
+
+          <!-- Панель ввода параметров -->
+          <div class="wk-param-panel" id="wkParamPanel" style="display:none;">
+            <div class="wk-param-name" id="wkParamName"></div>
+            <div class="wk-param-row" id="wkParamStrength">
+              <div class="wk-param-field">
+                <span class="wk-param-label">Подходы</span>
+                <div class="number-input" style="border:none;padding:0;">
+                  <button class="num-btn" onclick="adjustWkParam('wkSets',-1)"><svg width="14" height="14" viewBox="0 0 18 18" fill="none"><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                  <input type="number" id="wkSets" class="step-input step-input-num" value="3" min="1" max="20" step="1" style="width:60px;font-size:22px;">
+                  <button class="num-btn" onclick="adjustWkParam('wkSets',1)"><svg width="14" height="14" viewBox="0 0 18 18" fill="none"><line x1="9" y1="3" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                </div>
+              </div>
+              <div class="wk-param-x">×</div>
+              <div class="wk-param-field">
+                <span class="wk-param-label">Повторения</span>
+                <div class="number-input" style="border:none;padding:0;">
+                  <button class="num-btn" onclick="adjustWkParam('wkReps',-1)"><svg width="14" height="14" viewBox="0 0 18 18" fill="none"><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                  <input type="number" id="wkReps" class="step-input step-input-num" value="10" min="1" max="100" step="1" style="width:60px;font-size:22px;">
+                  <button class="num-btn" onclick="adjustWkParam('wkReps',1)"><svg width="14" height="14" viewBox="0 0 18 18" fill="none"><line x1="9" y1="3" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                </div>
+              </div>
+            </div>
+            <div class="wk-param-row" id="wkParamCardio" style="display:none;">
+              <div class="wk-param-field">
+                <span class="wk-param-label">Длительность</span>
+                <div class="number-input" style="border:none;padding:0;">
+                  <button class="num-btn" onclick="adjustWkParam('wkMinutes',-5)"><svg width="14" height="14" viewBox="0 0 18 18" fill="none"><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                  <input type="number" id="wkMinutes" class="step-input step-input-num" value="30" min="5" max="300" step="5" style="width:70px;font-size:22px;">
+                  <button class="num-btn" onclick="adjustWkParam('wkMinutes',5)"><svg width="14" height="14" viewBox="0 0 18 18" fill="none"><line x1="9" y1="3" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                  <span class="num-unit">мин</span>
+                </div>
+              </div>
+            </div>
+            <div class="portion-preview" id="wkParamPreview"></div>
+            <button class="btn-next portion-add-btn" onclick="addExercise()">Добавить упражнение</button>
+          </div>
+
+          <div class="wk-step-footer">
+            <button class="wk-back-link" onclick="wkGoBack(2)">Назад</button>
+            <button class="btn-next wk-finish-btn" id="wkFinishBtn" onclick="finishWorkout()" disabled>Запланировать</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
