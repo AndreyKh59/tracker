@@ -1230,9 +1230,9 @@ input[type=number] {
   transform: scale(0.97);
 }
 .dash-action-weight:hover {
-  border-color: #8b5cf6;
-  color: #8b5cf6;
-  background: #f5f3ff;
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-lighter);
 }
 
 /* Weight saved notice */
@@ -2286,13 +2286,16 @@ input[type=number] {
   .progress-calendar {
     width: 100%;
   }
+  .progress-cal-left {
+    width: 100%;
+  }
   .progress-cal-right {
-    flex-direction: row;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
   .progress-wk-stat {
-    flex: 1 1 calc(50% - 4px);
-    min-width: 120px;
+    min-width: 0;
   }
 }
 
@@ -3399,14 +3402,25 @@ input[type=number] {
   background: var(--accent-lighter);
 }
 .wk-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--font-accent);
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-muted);
-  padding: 10px 0 0;
-  transition: color var(--transition);
+  color: var(--text-secondary);
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 8px 14px;
+  margin-top: 10px;
+  transition: all var(--transition);
 }
-.wk-back-link:hover { color: var(--accent); }
+.wk-back-link:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-lighter);
+}
 
 .wk-exercise-header {
   display: flex;
@@ -4288,21 +4302,22 @@ input[type=number] {
 .wk-set-num-input {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0;
   background: var(--surface);
   border: 1.5px solid var(--border);
   border-radius: 6px;
-  padding: 2px 4px;
+  overflow: hidden;
 }
 .wk-set-num-input:focus-within {
   border-color: var(--accent);
 }
 .wk-set-num-input input {
-  width: 48px;
+  flex: 1;
+  min-width: 0;
   text-align: center;
   border: none;
   box-shadow: none;
-  padding: 4px 2px;
+  padding: 6px 2px;
   font-size: 14px;
   font-family: var(--font-accent);
   font-weight: 600;
@@ -4317,9 +4332,9 @@ input[type=number] {
   margin: 0;
 }
 .wk-set-btn {
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 0;
   background: var(--accent-lighter);
   color: var(--accent);
   display: flex;

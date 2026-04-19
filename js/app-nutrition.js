@@ -230,8 +230,6 @@
 
     renderCategories();
     renderFoodResults('');
-
-    setTimeout(function() { document.getElementById('foodSearch').focus(); }, 300);
   };
 
   window.closeFoodModal = function() {
