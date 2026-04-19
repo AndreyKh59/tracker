@@ -9,71 +9,7 @@
   var FP = window.FitPulse;
 
   // ===== База упражнений =====
-  var EXERCISE_DB = {
-    gym: {
-      strength: [
-        { id:'gs1', name:'Жим лёжа', met:6.0 },
-        { id:'gs2', name:'Присед со штангой', met:7.0 },
-        { id:'gs3', name:'Становая тяга', met:7.5 },
-        { id:'gs4', name:'Тяга верхнего блока', met:5.5 },
-        { id:'gs5', name:'Жим ногами', met:5.0 },
-        { id:'gs6', name:'Разгибание ног', met:4.0 },
-        { id:'gs7', name:'Сгибание рук (бицепс)', met:4.0 },
-        { id:'gs8', name:'Махи гантелями', met:4.5 },
-        { id:'gs9', name:'Гиперэкстензия', met:3.5 },
-        { id:'gs10', name:'Жим гантелей сидя', met:5.0 },
-        { id:'gs11', name:'Тяга в наклоне', met:6.0 },
-        { id:'gs12', name:'Разведение гантелей', met:4.0 },
-      ],
-      cardio: [
-        { id:'gc1', name:'Беговая дорожка', met:9.8 },
-        { id:'gc2', name:'Эллипс', met:7.5 },
-        { id:'gc3', name:'Велотренажёр', met:7.0 },
-        { id:'gc4', name:'Скакалка', met:10.0 },
-        { id:'gc5', name:'Гребной тренажёр', met:8.0 },
-      ],
-    },
-    home: {
-      strength: [
-        { id:'hs1', name:'Отжимания', met:6.0 },
-        { id:'hs2', name:'Приседания', met:5.0 },
-        { id:'hs3', name:'Выпады', met:5.5 },
-        { id:'hs4', name:'Планка', met:3.5 },
-        { id:'hs5', name:'Скручивания', met:3.5 },
-        { id:'hs6', name:'Подъём ног', met:4.0 },
-        { id:'hs7', name:'Отжимания узким хватом', met:6.5 },
-        { id:'hs8', name:'Бёрпи', met:8.0 },
-        { id:'hs9', name:'Отжимания на трицепс', met:5.0 },
-        { id:'hs10', name:'Ягодичный мостик', met:4.5 },
-      ],
-      cardio: [
-        { id:'hc1', name:'Скакалка', met:10.0 },
-        { id:'hc2', name:'Бёрпи', met:8.0 },
-        { id:'hc3', name:'Джампинг джек', met:7.0 },
-        { id:'hc4', name:'Бег на месте', met:7.5 },
-        { id:'hc5', name:'Велосипед (лёжа)', met:5.0 },
-        { id:'hc6', name:'Заход на скамью', met:6.0 },
-      ],
-    },
-    street: {
-      workout: [
-        { id:'sw1', name:'Подтягивания', met:7.0 },
-        { id:'sw2', name:'Отжимания на брусьях', met:7.5 },
-        { id:'sw3', name:'Выход силой', met:8.5 },
-        { id:'sw4', name:'Подъём ног к перекладине', met:5.5 },
-        { id:'sw5', name:'Отжимания (разные хваты)', met:6.0 },
-        { id:'sw6', name:'Приседания с прыжком', met:7.0 },
-        { id:'sw7', name:'Лазание по канату', met:8.0 },
-      ],
-      running: [
-        { id:'sr1', name:'Бег трусцой', met:7.0 },
-        { id:'sr2', name:'Бег интервальный', met:10.0 },
-        { id:'sr3', name:'Спринт', met:12.0 },
-        { id:'sr4', name:'Ходьба быстрая', met:5.0 },
-        { id:'sr5', name:'Велосипед', met:7.5 },
-      ],
-    },
-  };
+  var EXERCISE_DB = {};
 
   var LOCATION_LABELS = { gym:'Зал', home:'Дома', street:'Улица' };
   var TYPE_LABELS = {
@@ -82,110 +18,118 @@
     street:{ workout:'Воркаут', running:'Бег' },
   };
 
-  // Мышечные группы для силовых тренировок (зал и дома)
+  // Мышечные группы — ЗАЛ (штанги, тренажёры, гантели)
   var MUSCLE_GROUPS = {
     'Грудь': [
-      { id:'chest1', name:'Жим штанги лёжа', met:6.0, img:'bench_press.png' },
-      { id:'chest2', name:'Жим гантелей лёжа', met:5.5 },
-      { id:'chest3', name:'Разводка гантелей', met:4.0 },
-      { id:'chest4', name:'Кроссовер', met:4.5 },
-      { id:'chest5', name:'Отжимания', met:6.0, img:'pushup.png' },
-      { id:'chest6', name:'Жим под углом', met:5.5 },
+      { id:'chest1', name:'Жим штанги лежа', met:6.0, img:'barbell_bench_press.png' },
+      { id:'chest2', name:'Жим гантелей лежа', met:5.5, img:'dumbbell_chest_press.png' },
+      { id:'chest3', name:'Жим гантелей на наклонной скамье', met:5.5, img:'incline_dumbbell_press.png' },
+      { id:'chest4', name:'Жим в тренажёре', met:5.0, img:'chest_machine_press.png' },
+      { id:'chest5', name:'Сведение рук в кроссовере', met:4.5, img:'cable_crossover.png' },
     ],
     'Спина': [
-      { id:'back1', name:'Тяга верхнего блока', met:5.5 },
-      { id:'back2', name:'Тяга в наклоне', met:6.0 },
-      { id:'back3', name:'Подтягивания', met:7.0, img:'pullup.png' },
-      { id:'back4', name:'Тяга нижнего блока', met:5.0 },
-      { id:'back5', name:'Гиперэкстензия', met:3.5 },
-      { id:'back6', name:'Тяга гантели в наклоне', met:5.5 },
+      { id:'back1', name:'Тяга вертикального блока', met:5.5, img:'lat_pulldown.png' },
+      { id:'back2', name:'Тяга горизонтального блока сидя', met:5.0, img:'seated_cable_row.png' },
+      { id:'back3', name:'Тяга гантели в наклоне', met:5.5, img:'dumbbell_row.png' },
+      { id:'back4', name:'Становая тяга', met:7.5, img:'deadlift_new.png' },
+      { id:'back5', name:'Тяга в тренажёре (гребля)', met:6.0, img:'rowing_machine.png' },
     ],
     'Ноги': [
-      { id:'leg1', name:'Присед со штангой', met:7.0, img:'squat.png' },
-      { id:'leg2', name:'Жим ногами', met:5.0 },
-      { id:'leg3', name:'Разгибание ног', met:4.0 },
-      { id:'leg4', name:'Сгибание ног', met:4.0 },
-      { id:'leg5', name:'Выпады', met:5.5 },
-      { id:'leg6', name:'Подъём на носки', met:3.0 },
+      { id:'leg1', name:'Жим ногами', met:5.0, img:'leg_press.png' },
+      { id:'leg2', name:'Приседания со штангой', met:7.0, img:'barbell_squat.png' },
+      { id:'leg3', name:'Выпады с гантелями', met:5.5, img:'dumbbell_lunges.png' },
+      { id:'leg4', name:'Разгибание ног в тренажёре', met:4.0, img:'leg_extension.png' },
     ],
     'Плечи': [
-      { id:'sh1', name:'Жим гантелей сидя', met:5.0 },
-      { id:'sh2', name:'Махи гантелями', met:4.5 },
-      { id:'sh3', name:'Тяга штанги к подбородку', met:5.0 },
-      { id:'sh4', name:'Фейс пулл', met:3.5 },
-      { id:'sh5', name:'Подъём перед собой', met:4.0 },
+      { id:'sh1', name:'Жим гантелей сидя', met:5.0, img:'shoulder_press_new.png' },
+      { id:'sh2', name:'Махи гантелями в стороны', met:4.5, img:'shoulder_press_new.png' },
+      { id:'sh3', name:'Тяга гантелей к подбородку', met:5.0, img:'upright_row.png' },
+      { id:'sh4', name:'Фейс пулл', met:3.5, img:'face_pull.png' },
+      { id:'sh5', name:'Подъём гантелей перед собой', met:4.0, img:'front_raise.png' },
     ],
     'Руки': [
-      { id:'arm1', name:'Сгибание рук (бицепс)', met:4.0, img:'bicep_curl.png' },
-      { id:'arm1b', name:'Подъём штанги на бицепс стоя', met:4.0, img:'bicep_curl.png' },
-      { id:'arm2', name:'Французский жим', met:4.5 },
-      { id:'arm3', name:'Молотки', met:4.0 },
-      { id:'arm4', name:'Разгибание на блоке', met:4.0 },
-      { id:'arm5', name:'Отжимания на брусьях', met:7.5 },
+      { id:'arm1', name:'Подъём гантелей на бицепс', met:4.0, img:'dumbbell_bicep_curl.png' },
+      { id:'arm2', name:'Подъём штанги обратным хватом', met:4.0, img:'reverse_barbell_curl.png' },
+      { id:'arm3', name:'Жим лёжа на трицепс', met:4.5, img:'lying_tricep_press.png' },
+      { id:'arm4', name:'Разгибание на трицепс в тренажёре', met:4.0, img:'tricep_pushdown.png' },
+      { id:'arm5', name:'Отжимания на брусьях', met:7.5, img:'dips_new.png' },
     ],
     'Пресс': [
-      { id:'abs1', name:'Скручивания', met:3.5 },
-      { id:'abs2', name:'Планка', met:3.5 },
-      { id:'abs3', name:'Подъём ног', met:4.0 },
-      { id:'abs4', name:'Русские скручивания', met:4.0 },
-      { id:'abs5', name:'Велосипед', met:4.5 },
+      { id:'abs1', name:'Скручивания', met:3.5, img:'crunches.png' },
+      { id:'abs2', name:'Планка', met:3.5, img:'plank_new.png' },
+    ],
+  };
+
+  // Мышечные группы — ДОМА (только гантели + свой вес)
+  var MUSCLE_GROUPS_HOME = {
+    'Грудь': [
+      { id:'hc_chest1', name:'Жим гантелей лежа', met:5.5, img:'dumbbell_chest_press.png' },
+      { id:'hc_chest2', name:'Жим гантелей на наклонной скамье', met:5.5, img:'incline_dumbbell_press.png' },
+      { id:'hc_chest3', name:'Отжимания', met:6.0, img:'pushup_new.png' },
+    ],
+    'Спина': [
+      { id:'hc_back1', name:'Тяга гантели в наклоне', met:5.5, img:'dumbbell_row.png' },
+    ],
+    'Ноги': [
+      { id:'hc_leg1', name:'Приседания', met:5.0, img:'barbell_squat.png' },
+      { id:'hc_leg2', name:'Выпады с гантелями', met:5.5, img:'dumbbell_lunges.png' },
+    ],
+    'Плечи': [
+      { id:'hc_sh1', name:'Жим гантелей сидя', met:5.0, img:'shoulder_press_new.png' },
+      { id:'hc_sh2', name:'Махи гантелями в стороны', met:4.5, img:'shoulder_press_new.png' },
+      { id:'hc_sh3', name:'Тяга гантелей к подбородку', met:5.0, img:'upright_row.png' },
+      { id:'hc_sh4', name:'Подъём гантелей перед собой', met:4.0, img:'front_raise.png' },
+    ],
+    'Руки': [
+      { id:'hc_arm1', name:'Подъём гантелей на бицепс', met:4.0, img:'dumbbell_bicep_curl.png' },
+      { id:'hc_arm2', name:'Жим лёжа на трицепс', met:4.5, img:'lying_tricep_press.png' },
+    ],
+    'Пресс': [
+      { id:'hc_abs1', name:'Скручивания', met:3.5, img:'crunches.png' },
+      { id:'hc_abs2', name:'Планка', met:3.5, img:'plank_new.png' },
     ],
   };
 
   // Категории для кардио-упражнений (зал)
   var CARDIO_GYM_CATEGORIES = {
     'Тренажёры': [
-      { id:'gc1', name:'Беговая дорожка', met:9.8, img:'treadmill.png' },
-      { id:'gc2', name:'Эллипс', met:7.5 },
-      { id:'gc3', name:'Велотренажёр', met:7.0 },
-      { id:'gc5', name:'Гребной тренажёр', met:8.0 },
-    ],
-    'Прыжковые': [
-      { id:'gc4', name:'Скакалка', met:10.0 },
+      { id:'gc1', name:'Беговая дорожка', met:9.8, img:'treadmill_new.png' },
+      { id:'gc2', name:'Эллиптический тренажёр', met:7.5, img:'elliptical_new.png' },
+      { id:'gc3', name:'Велотренажёр', met:7.0, img:'exercise_bike.png' },
+      { id:'gc4', name:'Гребной тренажёр', met:8.0, img:'rowing_machine_new.png' },
+      { id:'gc5', name:'Скакалка', met:10.0, img:'jump_rope_new.png' },
     ],
   };
 
   // Категории для кардио-упражнений (дома)
   var CARDIO_HOME_CATEGORIES = {
     'Прыжковые': [
-      { id:'hc1', name:'Скакалка', met:10.0 },
-      { id:'hc3', name:'Джампинг джек', met:7.0 },
+      { id:'hc1', name:'Бёрпи', met:8.0, img:'burpees_new.png' },
+      { id:'hc2', name:'Джампинг джек', met:7.0, img:'jumping_jack.png' },
+      { id:'hc3', name:'Скакалка', met:10.0, img:'jump_rope_new.png' },
     ],
-    'Комплексные': [
-      { id:'hc2', name:'Бёрпи', met:8.0 },
-      { id:'hc4', name:'Бег на месте', met:7.5 },
-      { id:'hc5', name:'Велосипед (лёжа)', met:5.0 },
-      { id:'hc6', name:'Заход на скамью', met:6.0 },
+    'Упражнения': [
+      { id:'hc4', name:'Скручивания', met:3.5, img:'crunches.png' },
+      { id:'hc5', name:'Планка', met:3.5, img:'plank_new.png' },
     ],
   };
 
   // Категории для воркаута (улица)
   var WORKOUT_STREET_CATEGORIES = {
-    'Подтягивания': [
-      { id:'sw1', name:'Подтягивания', met:7.0 },
-      { id:'sw3', name:'Выход силой', met:8.5 },
-      { id:'sw4', name:'Подъём ног к перекладине', met:5.5 },
-    ],
-    'Отжимания': [
-      { id:'sw2', name:'Отжимания на брусьях', met:7.5 },
-      { id:'sw5', name:'Отжимания (разные хваты)', met:6.0 },
-    ],
-    'Ноги и взрывные': [
-      { id:'sw6', name:'Приседания с прыжком', met:7.0 },
-      { id:'sw7', name:'Лазание по канату', met:8.0 },
+    'Воркаут': [
+      { id:'sw1', name:'Подтягивания', met:7.0, img:'pullup_new.png' },
+      { id:'sw2', name:'Отжимания на брусьях', met:7.5, img:'dips_new.png' },
+      { id:'sw3', name:'Отжимания от пола', met:6.0, img:'pushup_new.png' },
+      { id:'sw4', name:'Скакалка', met:10.0, img:'jump_rope_new.png' },
     ],
   };
 
   // Категории для бега (улица)
   var RUNNING_STREET_CATEGORIES = {
     'Бег': [
-      { id:'sr1', name:'Бег трусцой', met:7.0 },
-      { id:'sr2', name:'Бег интервальный', met:10.0 },
-      { id:'sr3', name:'Спринт', met:12.0 },
-    ],
-    'Ходьба и велосипед': [
-      { id:'sr4', name:'Ходьба быстрая', met:5.0 },
-      { id:'sr5', name:'Велосипед', met:7.5 },
+      { id:'sr1', name:'Бег трусцой', met:7.0, img:'jogging.png' },
+      { id:'sr2', name:'Спринт', met:12.0, img:'running_new.png' },
+      { id:'sr3', name:'Ходьба быстрая', met:5.0, img:'walking.png' },
     ],
   };
 
@@ -328,6 +272,7 @@
             '<button class="wk-item-edit" onclick="openWorkoutModal(\'' + FP.escHtml(wk.dateStr) + '\',\'' + FP.escHtml(wk.id) + '\')">' +
               '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
             '</button>' +
+            (!wk.done ? '<button class="wk-item-start" onclick="startWorkoutSession(\'' + FP.escHtml(wk.dateStr) + '\',\'' + FP.escHtml(wk.id) + '\')">Начать</button>' : '') +
             '<button class="wk-item-delete" onclick="removeWorkout(\'' + FP.escHtml(wk.dateStr) + '\',\'' + FP.escHtml(wk.id) + '\')">' +
               '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
             '</button>' +
@@ -374,7 +319,7 @@
     FP.saveDateWorkouts(dateStr, workouts);
     var profile = FP.loadProfile();
     FP.renderWorkoutView(profile);
-    FP.updateDashboardStats(profile);
+    if (FP.renderDashboard) FP.renderDashboard(profile);
   };
 
   // Удалить тренировку
@@ -391,7 +336,7 @@
     }
     var profile = FP.loadProfile();
     FP.renderWorkoutView(profile);
-    FP.updateDashboardStats(profile);
+    if (FP.renderDashboard) FP.renderDashboard(profile);
   };
 
   // ===== Модалка — запланировать тренировку =====
@@ -830,8 +775,12 @@
   function renderExerciseList(query) {
     var container = document.getElementById('wkExerciseResults');
 
-    if (wkType === 'strength' && (wkLocation === 'gym' || wkLocation === 'home')) {
+    if (wkType === 'strength' && wkLocation === 'gym') {
       renderExerciseListByGroups(MUSCLE_GROUPS, container, query);
+      return;
+    }
+    if (wkType === 'strength' && wkLocation === 'home') {
+      renderExerciseListByGroups(MUSCLE_GROUPS_HOME, container, query);
       return;
     }
     if (wkType === 'cardio' && wkLocation === 'gym') {
@@ -855,7 +804,7 @@
   // ===== Шаг 4: Детали упражнения =====
   window.selectWkExerciseById = function(exId) {
     var found = null;
-    var allCategories = [MUSCLE_GROUPS, CARDIO_GYM_CATEGORIES, CARDIO_HOME_CATEGORIES, WORKOUT_STREET_CATEGORIES, RUNNING_STREET_CATEGORIES];
+    var allCategories = [MUSCLE_GROUPS, MUSCLE_GROUPS_HOME, CARDIO_GYM_CATEGORIES, CARDIO_HOME_CATEGORIES, WORKOUT_STREET_CATEGORIES, RUNNING_STREET_CATEGORIES];
     allCategories.forEach(function(cat) {
       if (found) return;
       Object.keys(cat).forEach(function(groupName) {
@@ -1050,6 +999,7 @@
         minutes: Math.round(minutes),
         met: wkSelectedExercise.met,
         cal: Math.round(cal),
+        img: wkSelectedExercise.img || '',
       };
 
       if (wkEditExerciseIdx >= 0) {
@@ -1070,6 +1020,7 @@
         minutes: Math.round(minutes),
         met: wkSelectedExercise.met,
         cal: Math.round(cal),
+        img: wkSelectedExercise.img || '',
       };
 
       if (wkEditExerciseIdx >= 0) {
@@ -1177,7 +1128,7 @@
 
     // Найти упражнение в базе по имени, чтобы получить met и id
     var found = null;
-    var allCategories = [MUSCLE_GROUPS, CARDIO_GYM_CATEGORIES, CARDIO_HOME_CATEGORIES, WORKOUT_STREET_CATEGORIES, RUNNING_STREET_CATEGORIES];
+    var allCategories = [MUSCLE_GROUPS, MUSCLE_GROUPS_HOME, CARDIO_GYM_CATEGORIES, CARDIO_HOME_CATEGORIES, WORKOUT_STREET_CATEGORIES, RUNNING_STREET_CATEGORIES];
     allCategories.forEach(function(cat) {
       if (found) return;
       Object.keys(cat).forEach(function(groupName) {
@@ -1329,7 +1280,7 @@
 
     var profile = FP.loadProfile();
     FP.renderWorkoutView(profile);
-    FP.updateDashboardStats(profile);
+    if (FP.renderDashboard) FP.renderDashboard(profile);
   };
 
 })();

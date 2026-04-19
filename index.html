@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -292,15 +293,19 @@
             <div id="dashMealsContent"></div>
           </div>
 
-          <!-- 4. Быстрые действия -->
+<!-- 4. Быстрые действия -->
           <div class="dash-actions">
-            <button class="dash-action-btn dash-action-food" onclick="openFoodModal('breakfast')">
+            <button class="dash-action-btn dash-action-food" onclick="openMealPicker()">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Добавить питание
             </button>
             <button class="dash-action-btn dash-action-workout" onclick="openWorkoutModal()">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Добавить тренировку
+            </button>
+            <button class="dash-action-btn dash-action-weight" onclick="openWeightModal()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V4"/><path d="M5 11l7-7 7 7"/></svg>
+              Зафиксировать вес
             </button>
           </div>
 
@@ -475,9 +480,111 @@
         <!-- Прогресс -->
         <section id="viewProgress" class="view">
           <h2 class="view-title">Прогресс</h2>
-          <div class="placeholder-card">
-            <svg class="placeholder-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            <p>Раздел прогресса будет добавлен на следующем этапе.</p>
+
+          <!-- Плашки выбора типа прогресса -->
+          <div class="progress-type-cards" id="progressTypeCards">
+            <button class="progress-type-card active" data-type="nutrition" onclick="switchProgressType('nutrition')">
+              <div class="progress-type-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+              </div>
+              <span class="progress-type-label">Питание</span>
+            </button>
+            <button class="progress-type-card" data-type="workouts" onclick="switchProgressType('workouts')">
+              <div class="progress-type-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <span class="progress-type-label">Тренировки</span>
+            </button>
+            <button class="progress-type-card" data-type="weight" onclick="switchProgressType('weight')">
+              <div class="progress-type-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V4"/><path d="M5 11l7-7 7 7"/></svg>
+              </div>
+              <span class="progress-type-label">Вес</span>
+            </button>
+            <button class="progress-type-card" data-type="activity" onclick="switchProgressType('activity')">
+              <div class="progress-type-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </div>
+              <span class="progress-type-label">Активность</span>
+            </button>
+          </div>
+
+          <!-- Панель: Питание -->
+          <div class="progress-panel" id="progressPanel_nutrition">
+            <div class="progress-card">
+              <div class="progress-card-head">
+                <h3 class="progress-card-title">Питание</h3>
+                <div class="progress-tabs" id="nutritionTabs">
+                  <button class="progress-tab active" data-period="week" onclick="switchNutritionPeriod('week')">Неделя</button>
+                  <button class="progress-tab" data-period="month" onclick="switchNutritionPeriod('month')">Месяц</button>
+                </div>
+              </div>
+              <div class="progress-chart-wrap">
+                <canvas id="nutritionChart"></canvas>
+              </div>
+              <div class="progress-no-data" id="nutritionNoData" style="display:none;">
+                <p>Пока нет данных. Добавьте питание.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Панель: Тренировки (календарь + статистика) -->
+          <div class="progress-panel" id="progressPanel_workouts" style="display:none;">
+            <div class="progress-card">
+              <div class="progress-card-head">
+                <h3 class="progress-card-title">Тренировки</h3>
+                <div class="progress-calendar-nav">
+                  <button class="progress-cal-btn" onclick="progressCalPrev()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+                  <span id="progressCalMonth" class="progress-cal-month"></span>
+                  <button class="progress-cal-btn" onclick="progressCalNext()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                </div>
+              </div>
+              <div class="progress-cal-layout">
+                <div class="progress-cal-left">
+                  <div class="progress-calendar" id="progressCalendar"></div>
+                </div>
+                <div class="progress-cal-right" id="progressCalStats"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Панель: Вес -->
+          <div class="progress-panel" id="progressPanel_weight" style="display:none;">
+            <div class="progress-card">
+              <div class="progress-card-head">
+                <h3 class="progress-card-title">Вес</h3>
+                <div class="progress-tabs" id="weightTabs">
+                  <button class="progress-tab active" data-period="week" onclick="switchWeightPeriod('week')">Неделя</button>
+                  <button class="progress-tab" data-period="month" onclick="switchWeightPeriod('month')">Месяц</button>
+                  <button class="progress-tab" data-period="quarter" onclick="switchWeightPeriod('quarter')">Квартал</button>
+                </div>
+              </div>
+              <div class="progress-chart-wrap">
+                <canvas id="weightChart"></canvas>
+              </div>
+              <div class="progress-no-data" id="weightNoData" style="display:none;">
+                <p>Пока нет данных. Обновите вес в профиле.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Панель: Активность (сожжённые калории) -->
+          <div class="progress-panel" id="progressPanel_activity" style="display:none;">
+            <div class="progress-card">
+              <div class="progress-card-head">
+                <h3 class="progress-card-title">Активность</h3>
+                <div class="progress-tabs" id="activityTabs">
+                  <button class="progress-tab active" data-period="week" onclick="switchActivityPeriod('week')">Неделя</button>
+                  <button class="progress-tab" data-period="month" onclick="switchActivityPeriod('month')">Месяц</button>
+                </div>
+              </div>
+              <div class="progress-chart-wrap">
+                <canvas id="activityChart"></canvas>
+              </div>
+              <div class="progress-no-data" id="activityNoData" style="display:none;">
+                <p>Пока нет данных. Выполните тренировку.</p>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -486,7 +593,58 @@
           <h2 class="view-title">Профиль</h2>
           <div id="profileSummary" class="profile-summary"></div>
         </section>
+
+        <!-- Сессия тренировки -->
+        <section id="viewSession" class="view">
+          <!-- Панель таймеров -->
+          <div class="ws-bar">
+            <div class="ws-bar-left">
+              <div class="ws-timer" id="wsTimer">00:00</div>
+              <div class="ws-rest-timer" id="wsRestTimer" style="display:none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span id="wsRestTimerVal">2:00</span>
+                <button class="ws-rest-skip" onclick="skipRest()">Пропустить</button>
+              </div>
+            </div>
+            <div class="ws-bar-right">
+              <button class="ws-finish-btn" onclick="finishWorkoutSession()">Завершить</button>
+            </div>
+          </div>
+
+          <!-- Прогресс упражнений -->
+          <div class="ws-progress">
+            <div class="ws-progress-bar" id="wsProgressBar"></div>
+          </div>
+
+          <!-- Список упражнений -->
+          <div class="ws-exercises" id="wsExercises"></div>
+        </section>
       </main>
+    </div>
+
+    <!-- Пикер приёма пищи -->
+    <div class="meal-picker-overlay" id="mealPickerOverlay" onclick="closeMealPicker()">
+      <div class="meal-picker" onclick="event.stopPropagation()">
+        <div class="meal-picker-title">Выберите приём пищи</div>
+        <div class="meal-picker-options">
+          <button class="meal-picker-btn" onclick="selectMealType('breakfast')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+            Завтрак
+          </button>
+          <button class="meal-picker-btn" onclick="selectMealType('lunch')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
+            Обед
+          </button>
+          <button class="meal-picker-btn" onclick="selectMealType('dinner')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 11h.01"/><path d="M11 15h.01"/><path d="M16 16h.01"/><path d="M2 16l20 6-6-20L8 8z"/></svg>
+            Ужин
+          </button>
+          <button class="meal-picker-btn" onclick="selectMealType('snacks')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            Перекусы
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Bottom nav (mobile) -->
@@ -512,6 +670,8 @@
         <span class="bottomnav-label">Профиль</span>
       </button>
     </nav>
+
+
 
     <!-- Модалка добавления продукта -->
     <div class="modal-overlay" id="foodModal">
@@ -545,6 +705,35 @@
           </div>
           <div class="portion-preview" id="portionPreview"></div>
           <button class="btn-next portion-add-btn" onclick="confirmAddFood()">Добавить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модалка фиксации веса -->
+    <div class="modal-overlay" id="weightModal">
+      <div class="modal-sheet weight-modal-sheet">
+        <div class="modal-header">
+          <h3 class="modal-title">Зафиксировать вес</h3>
+          <button class="modal-close" onclick="closeWeightModal()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="weight-modal-body">
+          <div class="weight-modal-info">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V4"/><path d="M5 11l7-7 7 7"/></svg>
+            <span>Введите текущий вес — данные обновятся в профиле и на графике прогресса</span>
+          </div>
+          <div class="weight-input-row">
+            <button class="num-btn" onclick="adjustNum('weightModalInput', -0.5)">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <input type="number" id="weightModalInput" class="step-input step-input-num" value="70" min="30" max="300" step="0.1">
+            <button class="num-btn" onclick="adjustNum('weightModalInput', 0.5)">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="9" y1="3" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <span class="num-unit">кг</span>
+          </div>
+          <button class="btn-next weight-save-btn" onclick="confirmWeight()">Сохранить</button>
         </div>
       </div>
     </div>
@@ -744,6 +933,7 @@
   <script src="js/app-dashboard.js"></script>
   <script src="js/app-nutrition.js"></script>
   <script src="js/app-workouts.js"></script>
+  <script src="js/app-session.js"></script>
   <script src="js/app-progress.js"></script>
   <script src="js/app-profile.js"></script>
 </body>

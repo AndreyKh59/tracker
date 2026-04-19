@@ -206,6 +206,7 @@
       var doneClass = wk.done ? ' done' : '';
       var exCount = (wk.exercises && wk.exercises.length) || 0;
       var hasEx = wk.exercises && wk.exercises.length > 0;
+      var wkId = wk.id || (FP.todayDateStr() + '_' + wk.time);
 
       html += '<div class="dash-wk-accordion' + doneClass + '">';
 
@@ -220,8 +221,15 @@
       if (wk.done) {
         html += '<span class="dash-workout-done-badge">Выполнено</span>';
       } else {
-        html += '<button class="btn-next dash-wk-start-btn" onclick="event.stopPropagation(); startDashWorkout()">Начать</button>';
+        html += '<button class="btn-next dash-wk-start-btn" onclick="event.stopPropagation(); startWorkoutSession(\'' + FP.escHtml(FP.todayDateStr()) + '\',\'' + FP.escHtml(wkId) + '\')">Начать</button>';
       }
+
+      html += '<button class="dash-wk-edit-btn" onclick="event.stopPropagation(); openWorkoutModal(\'' + FP.escHtml(FP.todayDateStr()) + '\',\'' + FP.escHtml(wkId) + '\')" title="Редактировать">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+      '</button>';
+      html += '<button class="dash-wk-delete-btn" onclick="event.stopPropagation(); removeWorkout(\'' + FP.escHtml(FP.todayDateStr()) + '\',\'' + FP.escHtml(wkId) + '\')" title="Удалить">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+      '</button>';
 
       if (hasEx) {
         html += '<svg class="dash-wk-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
@@ -275,8 +283,20 @@
     }
   };
 
-  // ===== Начать тренировку (перейти на вкладку тренировок) =====
+  // ===== Начать тренировку (запустить сессию) =====
   window.startDashWorkout = function() {
+    // Ищем первую невыполненную тренировку за сегодня
+    var todayWorkouts = FP.getDateWorkouts(FP.todayDateStr());
+    for (var i = 0; i < todayWorkouts.length; i++) {
+      if (!todayWorkouts[i].done) {
+        var wkId = todayWorkouts[i].id || (FP.todayDateStr() + '_' + todayWorkouts[i].time);
+        if (typeof startWorkoutSession === 'function') {
+          startWorkoutSession(FP.todayDateStr(), wkId);
+        }
+        return;
+      }
+    }
+    // Если нет тренировок — перейти на вкладку тренировок
     navigate('workouts');
   };
 
@@ -320,10 +340,15 @@
 
       if (items.length > 0) {
         html += '<div class="dash-meal-items">';
-        items.forEach(function(item) {
+        items.forEach(function(item, itemIdx) {
           html += '<div class="dash-meal-item">' +
-            '<span class="dash-meal-item-name">' + FP.escHtml(item.name) + '</span>' +
-            '<span class="dash-meal-item-detail">' + (item.grams || 0) + ' г · ' + Math.round(item.cal || 0) + ' ккал</span>' +
+            '<div class="dash-meal-item-info">' +
+              '<span class="dash-meal-item-name">' + FP.escHtml(item.name) + '</span>' +
+              '<span class="dash-meal-item-detail">' + (item.grams || 0) + ' г · ' + Math.round(item.cal || 0) + ' ккал</span>' +
+            '</div>' +
+            '<button class="dash-meal-item-del" onclick="event.stopPropagation(); removeFood(\'' + meal + '\',' + itemIdx + ')">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+            '</button>' +
           '</div>';
         });
         html += '</div>';
@@ -340,7 +365,7 @@
     if (!hasAny) {
       html = '<div class="dash-meals-empty">' +
         '<p>Пока ничего не добавлено</p>' +
-        '<button class="btn-next dash-meal-add-btn" onclick="openFoodModal(\'breakfast\')">Добавить приём пищи</button>' +
+        '<button class="btn-next dash-meal-add-btn" onclick="openMealPicker()">Добавить приём пищи</button>' +
       '</div>';
     }
 
@@ -360,6 +385,123 @@
     } else {
       body.style.maxHeight = body.scrollHeight + 'px';
       accordion.classList.add('open');
+    }
+  };
+
+  // ===== Модалка фиксации веса =====
+  window.openWeightModal = function() {
+    var profile = FP.loadProfile();
+    if (!profile) return;
+
+    // Устанавливаем текущий вес как начальное значение
+    var input = document.getElementById('weightModalInput');
+    if (input) input.value = profile.weight || 70;
+
+    var modal = document.getElementById('weightModal');
+    if (modal) {
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  window.closeWeightModal = function() {
+    var modal = document.getElementById('weightModal');
+    if (modal) {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  };
+
+  window.confirmWeight = function() {
+    var input = document.getElementById('weightModalInput');
+    var weight = parseFloat(input ? input.value : 0);
+
+    if (!weight || weight < 30 || weight > 300) {
+      alert('Введите корректный вес (от 30 до 300 кг)');
+      return;
+    }
+
+    var profile = FP.loadProfile();
+    if (!profile) return;
+
+    // Обновляем вес в профиле
+    profile.weight = weight;
+
+    // Пересчёт нормы калорий
+    var age = profile.age || 25;
+    var bmr = 10 * weight + 6.25 * profile.height - 5 * age;
+    if (profile.gender === 'male') bmr += 5; else bmr -= 161;
+    var activityMultiplier = { low: 1.2, medium: 1.55, high: 1.725 };
+    var mult = activityMultiplier[profile.activityLevel] || 1.55;
+    if (profile.goal === 'lose') mult -= 0.2;
+    else if (profile.goal === 'gain') mult += 0.15;
+    profile.dailyCalorieTarget = Math.round(bmr * mult);
+    profile.bmr = Math.round(bmr);
+
+    // Если цель — поддерживать форму, целевой вес = текущий
+    if (profile.goal === 'maintain') {
+      profile.targetWeight = weight;
+    }
+
+    FP.saveProfile(profile);
+
+    // Сохранить запись веса в историю
+    if (FP.saveWeightRecord) FP.saveWeightRecord(weight);
+
+    // Закрыть модалку
+    closeWeightModal();
+
+    // Обновляем UI
+    if (FP.renderDashboard) FP.renderDashboard(profile);
+    if (FP.renderProfileView) FP.renderProfileView(profile);
+
+    // Показать уведомление
+    showWeightSaved();
+  };
+
+  function showWeightSaved() {
+    var existing = document.getElementById('weightSavedNotice');
+    if (existing) existing.remove();
+
+    var notice = document.createElement('div');
+    notice.id = 'weightSavedNotice';
+    notice.className = 'weight-saved-notice';
+    notice.textContent = 'Вес сохранён';
+    var viewDashboard = document.getElementById('viewDashboard');
+    if (viewDashboard) {
+      viewDashboard.prepend(notice);
+      setTimeout(function() {
+        notice.style.opacity = '0';
+        setTimeout(function() { notice.remove(); }, 300);
+      }, 2000);
+    }
+  }
+
+  // Закрытие модалки по клику на оверлей
+  document.addEventListener('click', function(e) {
+    var modal = document.getElementById('weightModal');
+    if (e.target === modal) closeWeightModal();
+  });
+
+  // ===== Пикер приёма пищи =====
+  window.openMealPicker = function() {
+    var overlay = document.getElementById('mealPickerOverlay');
+    if (overlay) {
+      overlay.classList.add('open');
+    }
+  };
+
+  window.closeMealPicker = function() {
+    var overlay = document.getElementById('mealPickerOverlay');
+    if (overlay) {
+      overlay.classList.remove('open');
+    }
+  };
+
+  window.selectMealType = function(mealType) {
+    closeMealPicker();
+    if (typeof openFoodModal === 'function') {
+      openFoodModal(mealType);
     }
   };
 

@@ -70,6 +70,18 @@ window.FitPulse = {};
 
   // ===== Навигация =====
   window.navigate = function(view) {
+    // Если идёт сессия тренировки — сначала завершить её
+    if (FP.isSessionActive && FP.isSessionActive()) {
+      if (confirm('Завершить тренировку и перейти в другой раздел?')) {
+        // Закрываем сессию без сохранения (просто выходим)
+        if (typeof finishWorkoutSession === 'function') {
+          finishWorkoutSession();
+        }
+      } else {
+        return; // Остаемся в сессии
+      }
+    }
+
     document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
     var el = document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1));
     if (el) el.classList.add('active');
@@ -86,6 +98,14 @@ window.FitPulse = {};
         if (FP.updateDashboardStats) FP.updateDashboardStats(profile);
       }
     }
+    if (view === 'progress') {
+      var profile = FP.loadProfile();
+      if (profile && FP.renderProgressView) FP.renderProgressView(profile);
+    }
+
+    // Восстановить заголовок
+    var headerTitle = document.querySelector('.header-title');
+    if (headerTitle) headerTitle.textContent = 'FitPulse';
   };
 
   // ===== Сброс =====
@@ -95,7 +115,7 @@ window.FitPulse = {};
     var keys = [];
     for (var i = 0; i < localStorage.length; i++) {
       var key = localStorage.key(i);
-      if (key.indexOf('fitpulse_meals_') === 0 || key.indexOf('fitpulse_workouts_') === 0) {
+      if (key.indexOf('fitpulse_meals_') === 0 || key.indexOf('fitpulse_workouts_') === 0 || key.indexOf('fitpulse_weight_history') === 0) {
         keys.push(key);
       }
     }

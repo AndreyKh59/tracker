@@ -211,7 +211,7 @@
       FP.saveDayMeals(dayData);
       var profile = FP.loadProfile();
       FP.renderNutritionView(profile);
-      FP.updateDashboardStats(profile);
+      if (FP.renderDashboard) FP.renderDashboard(profile);
     }
   };
 
@@ -360,7 +360,6 @@
 
     var profile = FP.loadProfile();
     FP.renderNutritionView(profile);
-    FP.updateDashboardStats(profile);
     if (FP.renderDashboard) FP.renderDashboard(profile);
 
     var card = document.querySelector('.meal-card[data-meal="' + currentMealType + '"]');
