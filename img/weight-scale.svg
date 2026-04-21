@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" viewBox="0 0 64 64">
+  <defs>
+    <mask id="ws-mask">
+      <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABcUlEQVR42u2b0Q7DIAhFhfD/v8wetjWdM9YKVluuT80yhXsEim1KKSVNn6G6XT56ENF2zdHE51o5mvgcAmlE9bshtfx4evj/1ICoAwCiA5AZeddzv74VAK8bS77OCCCymuhWG14w5A7Cq42MEYSMFm518MiOFYSMEO6Zq/u1arZ7QYiX+CsqdgsMVT3lC1vFE9GU9rlm90xdYq8dWeFsf7tOUFWnH8V51m7vhXtDGFIDVuoBPH1gK9mZEEq2z0Yqe4TXDAge4rtTYMWnRr0+8Sq5OMsWexJvdaz0P8tcS0SKNexyh0qtaK+4lnWmN0I1B6yNztF8j1okq+fo6PriAqCUCr27dtVzBvcIqEE442zLkdfzNux6GModsx6VS/O9exD3GjCiSRrZeOHNEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQIzx93I02neU/PQPJWuDiN4pEBHCVzPnP0QSn1JKL7XerZkVkVa4AAAAAElFTkSuQmCC" width="64" height="64"/>
+    </mask>
+  </defs>
+  <rect width="64" height="64" fill="currentColor" mask="url(#ws-mask)"/>
+</svg>
